@@ -12,6 +12,7 @@ export default class App extends Component {
     this.state = {
       latitude: -32.88083800623871,
       longitude: 172.70746492207425,
+      result: '',
     }
   }
 
@@ -28,67 +29,95 @@ export default class App extends Component {
   updateLocation = () => {
     this.setState({
       latitude: -36.88083800623871,
-      longitude: 174.70746492207425
+      longitude: 174.70746492207425,
     })
   }
 
-  getLocation = async () =>{
+  getLocation = async () => {
 
     let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
+      return;
+    }
 
     let location = await Location.getCurrentPositionAsync({});
     console.log(location)
     console.log(location.coords.longitude)
     this.setState({ latitude: location.coords.latitude, longitude: location.coords.longitude })
   }
+
+  getWeather = async () => {
+    let latitude = -36.88083800623871;
+    let longitude = 174.70746492207425;
+    // try {
+    //   console.log('fetching')
+      let result = await fetch(
+        'https://api.openweathermap.org/data/2.5/weather?lat=-36.88083800623871&lon=174.70746492207425&appid=d9b7491733da14e804ae98f8a6cfdf7b'
+      ).then((response)=>response.json()).catch(error => {
+        console.log('found error', error)
+      })
+    console.log(result.coord.lon + "this");
+    this.setState({result: result})      
+      // console.log(response);
+      // let json = await response.json();
   
+  
+
+  }
   render() {
     console.log('sfad');
     let latitude = 33.7872131;
     let longitude = -84.381931;
 
+    // If the lat or long has changed update it 
     if (this.state.latitude != 0) {
-      console.log(this.state.latitude)
       latitude = this.state.latitude;
       longitude = this.state.longitude;
     }
 
+    let result = this.state.result;
+    if (result !=""){
+      console.log(result.coord.lon);
+    }
     
+
 
     return (
       <>
-      <MapView
-        style={{ ...StyleSheet.absoluteFillObject }}
-        initialRegion={{
-          // latitude: 33.7872131,
-          // longitude: -84.381931,
-          latitude: latitude,
-          longitude: longitude,
-          latitudeDelta: .005,
-          longitudeDelta: .005
-        }} region={{latitude: latitude,
-          longitude: longitude,
-          latitudeDelta: .005,
-          longitudeDelta: .005}} >
-        
-        <Marker
-          // coordinate={{ latitude: 33.7872131, longitude: -84.381931 }}
-          coordinate={{ latitude: latitude, longitude: longitude }}
-          title='Flatiron School Atlanta'
-          description='This is where the magic happens!'
-        ></Marker>
+        <MapView
+          style={{ ...StyleSheet.absoluteFillObject }}
+          initialRegion={{
+            // latitude: 33.7872131,
+            // longitude: -84.381931,
+            latitude: latitude,
+            longitude: longitude,
+            latitudeDelta: .005,
+            longitudeDelta: .005
+          }} region={{
+            latitude: latitude,
+            longitude: longitude,
+            latitudeDelta: .005,
+            longitudeDelta: .005
+          }} >
 
-      </MapView>
-      <View style={styles.container}>
-      <Text style={styles.txt}>{latitude} -- {longitude}</Text>
-      <View style={styles.getLocButton}>
-      <Button onPress={this.getLocation} title="Get My Location" />
-      </View>
-      </View>
+          <Marker
+            // coordinate={{ latitude: 33.7872131, longitude: -84.381931 }}
+            coordinate={{ latitude: latitude, longitude: longitude }}
+            title='Flatiron School Atlanta'
+            description='This is where the magic happens!'
+          ></Marker>
+
+        </MapView>
+        <View style={styles.container}>
+          <Text style={styles.txt}>{latitude} -- {longitude}</Text>
+          <View style={styles.getLocButton}>
+            <Button onPress={this.getLocation} title="Get My Location" />
+          </View>
+          <View style={styles.getLocButton}>
+            <Button onPress={this.getWeather} title="Get Weather" />
+          </View>
+        </View>
       </>
     );
   }
@@ -98,9 +127,9 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 750,
     backgroundColor: "white",
-    padding:10,
+    padding: 10,
   },
-  txt:{
+  txt: {
     backgroundColor: "#dedede",
   },
   getLocButton: {
