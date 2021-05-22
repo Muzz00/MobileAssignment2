@@ -3,6 +3,7 @@ import { StyleSheet, View, Button, Text } from 'react-native';
 // import MapView from 'react-native-maps'
 import MapView, { Marker, Callout } from 'react-native-maps'
 import * as Location from 'expo-location';
+import { Directions } from 'react-native-gesture-handler';
 
 
 
@@ -17,10 +18,7 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    // this._getLocation();
-    console.log("hello")
     this.updateLocation();
-    this.forceUpdate();
   }
 
 
@@ -48,25 +46,21 @@ export default class App extends Component {
   }
 
   getWeather = async () => {
-    let latitude = -36.88083800623871;
-    let longitude = 174.70746492207425;
     // try {
     //   console.log('fetching')
-      let result = await fetch(
-        'https://api.openweathermap.org/data/2.5/weather?lat=-36.88083800623871&lon=174.70746492207425&appid=d9b7491733da14e804ae98f8a6cfdf7b'
-      ).then((response)=>response.json()).catch(error => {
-        console.log('found error', error)
-      })
-    console.log(result.coord.lon + "this");
-    this.setState({result: result})      
-      // console.log(response);
-      // let json = await response.json();
-  
-  
+    let result = await fetch(
+      'https://api.openweathermap.org/data/2.5/weather?lat=' + this.state.latitude + '&lon=' + this.state.longitude + '&appid=d9b7491733da14e804ae98f8a6cfdf7b&units=metric'
+    ).then((response) => response.json()).catch(error => {
+      console.log('found error', error)
+    })
+    // console.log(result.coord.lon + "this");
+    this.setState({ result: result })
+
+
 
   }
   render() {
-    console.log('sfad');
+    // Location
     let latitude = 33.7872131;
     let longitude = -84.381931;
 
@@ -76,17 +70,22 @@ export default class App extends Component {
       longitude = this.state.longitude;
     }
 
+    // Weather
+    let weather = {};
     let result = this.state.result;
-    if (result !=""){
+    if (result != "") {
       console.log(result.coord.lon);
+
+      weather = result.weather[0];
+      console.log(result.name);
     }
-    
+
 
 
     return (
       <>
         <MapView
-          style={{ ...StyleSheet.absoluteFillObject }}
+          style={{ ...StyleSheet.absoluteFillObject,...styles.mapView }}
           initialRegion={{
             // latitude: 33.7872131,
             // longitude: -84.381931,
@@ -117,6 +116,17 @@ export default class App extends Component {
           <View style={styles.getLocButton}>
             <Button onPress={this.getWeather} title="Get Weather" />
           </View>
+          {this.state.result ? (
+            <View style={styles.weatherContainer}>
+              <Text style={{...styles.white, ...styles.wDescription}}>{result.name}</Text>
+              <Text style={{...styles.white, ...styles.wDescription}}>{weather.description}</Text>
+              <Text style={{...styles.white, ...styles.wDescription, ...styles.celcius}}>{result.main.temp}°C</Text>
+            </View>
+          ) : (
+            <View style={styles.weatherContainer}>
+
+            </View>
+          )}
         </View>
       </>
     );
@@ -124,20 +134,44 @@ export default class App extends Component {
 }
 
 const styles = StyleSheet.create({
+  mapView: {backgroundColor: 'black'},
   container: {
-    marginTop: 750,
+    marginTop: 700,
     backgroundColor: "white",
     padding: 10,
+    height: 190,
+    borderRadius: 10,
   },
   txt: {
     backgroundColor: "#dedede",
+    width: "96%",
+    marginLeft: "2%"
   },
   getLocButton: {
-    // position: absolute,
     backgroundColor: "black",
     width: "40%",
-    marginLeft: 10,
-    marginTop: 10,
+    marginLeft: "2%",
+    marginTop: "2%",
     borderRadius: 5,
+  },
+  weatherContainer: {
+    backgroundColor: "#333",
+    height: 140,
+    borderRadius: 5,
+    width: "50%",
+    position: 'absolute',
+    top: 40,
+    left: "50%",
+    paddingTop: 15,
+  },
+  white: {
+    color: "white",
+  },
+  wDescription:{
+    textAlign: 'center',
+    margin: 2,
+  },
+  celcius:{
+    fontSize:40,
   }
 })
