@@ -69,12 +69,12 @@ export default class App extends Component {
   }
 
   mapPressed = (e) => {
-    console.log(e.nativeEvent.coordinate);
     this.setState({
       latitude: e.nativeEvent.coordinate.latitude,
       longitude: e.nativeEvent.coordinate.longitude
     })
   }
+  
   render() {
     // Location
     let latitude = 33.7872131;
