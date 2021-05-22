@@ -7,6 +7,7 @@ import { Directions } from 'react-native-gesture-handler';
 
 
 
+
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -67,11 +68,18 @@ export default class App extends Component {
     this.forceUpdate();
   }
 
+  mapPressed = (e) => {
+    console.log(e.nativeEvent.coordinate);
+    this.setState({
+      latitude: e.nativeEvent.coordinate.latitude,
+      longitude: e.nativeEvent.coordinate.longitude
+    })
+  }
   render() {
     // Location
     let latitude = 33.7872131;
     let longitude = -84.381931;
-
+    
     // If the lat or long has changed update it 
     if (this.state.latitude != 0) {
       latitude = this.state.latitude;
@@ -94,6 +102,7 @@ export default class App extends Component {
         <MapView
           customMapStyle={mapStyle}
           style={{ ...StyleSheet.absoluteFillObject,...styles.mapView }}
+          onPress={(e) => this.mapPressed(e)}
           initialRegion={{
             // latitude: 33.7872131,
             // longitude: -84.381931,
