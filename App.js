@@ -83,9 +83,32 @@ export default class App extends Component {
         ></Marker>
 
       </MapView>
-      <Text>HellowWorld</Text>
-      <Button onPress={this.getLocation} title="Hello" />
+      <View style={styles.container}>
+      <Text style={styles.txt}>{latitude} -- {longitude}</Text>
+      <View style={styles.getLocButton}>
+      <Button onPress={this.getLocation} title="Get My Location" />
+      </View>
+      </View>
       </>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 750,
+    backgroundColor: "white",
+    padding:10,
+  },
+  txt:{
+    backgroundColor: "#dedede",
+  },
+  getLocButton: {
+    // position: absolute,
+    backgroundColor: "black",
+    width: "40%",
+    marginLeft: 10,
+    marginTop: 10,
+    borderRadius: 5,
+  }
+})
