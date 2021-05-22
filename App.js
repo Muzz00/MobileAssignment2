@@ -15,6 +15,7 @@ export default class App extends Component {
       latitude: -32.88083800623871,
       longitude: 172.70746492207425,
       result: '',
+      markers: []
     }
   }
 
@@ -59,27 +60,29 @@ export default class App extends Component {
   }
 
 
-  darkMode = () =>{
-    if (mapStyle.length == 0){
+  darkMode = () => {
+    if (mapStyle.length == 0) {
       mapStyle = mapBlack;
-    }else{
+    } else {
       mapStyle = []
     }
     this.forceUpdate();
   }
 
   mapPressed = (e) => {
+    this.setState({ markers: [...this.state.markers, { latlng: e.nativeEvent.coordinate }] })
+
     this.setState({
       latitude: e.nativeEvent.coordinate.latitude,
-      longitude: e.nativeEvent.coordinate.longitude
+      longitude: e.nativeEvent.coordinate.longitude,
     })
   }
-  
+
   render() {
     // Location
     let latitude = 33.7872131;
     let longitude = -84.381931;
-    
+
     // If the lat or long has changed update it 
     if (this.state.latitude != 0) {
       latitude = this.state.latitude;
@@ -101,7 +104,7 @@ export default class App extends Component {
       <>
         <MapView
           customMapStyle={mapStyle}
-          style={{ ...StyleSheet.absoluteFillObject,...styles.mapView }}
+          style={{ ...StyleSheet.absoluteFillObject, ...styles.mapView }}
           onPress={(e) => this.mapPressed(e)}
           initialRegion={{
             // latitude: 33.7872131,
@@ -113,8 +116,8 @@ export default class App extends Component {
           }} region={{
             latitude: latitude,
             longitude: longitude,
-            latitudeDelta: .005,
-            longitudeDelta: .005
+            latitudeDelta: .1,
+            longitudeDelta: .1
           }} >
 
           <Marker
@@ -123,6 +126,11 @@ export default class App extends Component {
             title='Flatiron School Atlanta'
             description='This is where the magic happens!'
           ></Marker>
+          {
+            this.state.markers.map((marker, i) => (
+              <MapView.Marker key={i} coordinate={marker.latlng} />
+            ))
+          }
 
         </MapView>
         <View style={styles.container}>
@@ -138,9 +146,9 @@ export default class App extends Component {
           </View>
           {this.state.result ? (
             <View style={styles.weatherContainer}>
-              <Text style={{...styles.white, ...styles.wDescription}}>{result.name}</Text>
-              <Text style={{...styles.white, ...styles.wDescription}}>{weather.description}</Text>
-              <Text style={{...styles.white, ...styles.wDescription, ...styles.celcius}}>{result.main.temp}°C</Text>
+              <Text style={{ ...styles.white, ...styles.wDescription }}>{result.name}</Text>
+              <Text style={{ ...styles.white, ...styles.wDescription }}>{weather.description}</Text>
+              <Text style={{ ...styles.white, ...styles.wDescription, ...styles.celcius }}>{result.main.temp}°C</Text>
             </View>
           ) : (
             <View style={styles.weatherContainer}>
@@ -154,7 +162,7 @@ export default class App extends Component {
 }
 
 const styles = StyleSheet.create({
-  mapView: {backgroundColor: 'black'},
+  mapView: { backgroundColor: 'black' },
   container: {
     marginTop: 700,
     backgroundColor: "white",
@@ -187,12 +195,12 @@ const styles = StyleSheet.create({
   white: {
     color: "white",
   },
-  wDescription:{
+  wDescription: {
     textAlign: 'center',
     margin: 2,
   },
-  celcius:{
-    fontSize:40,
+  celcius: {
+    fontSize: 40,
   }
 })
 
