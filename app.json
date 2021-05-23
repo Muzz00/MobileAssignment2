@@ -3,10 +3,15 @@
   "displayName": "Maps",
   "expo": {
     "name": "Maps",
+    "icon": "./weatherIcon.png",
     "slug": "Maps",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "android": {
+      "package": "com.Muzz.Maps",
+      "versionCode": 1
+    }
   }
 }

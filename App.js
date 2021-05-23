@@ -4,34 +4,20 @@ import { StyleSheet, View, Button, Text } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps'
 import * as Location from 'expo-location';
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
-
+import {mapRetro, mapAubergine, mapBlack} from './mapStyles'
 
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      latitude: -32.88083800623871,
-      longitude: 172.70746492207425,
+      latitude: -36.88083800623871,
+      longitude: 174.70746492207425,
       result: '',
       delta: 0.1,
       containerSwipeMargin: 680,
-      markers: [],
+      // markers: [],
     }
-  }
-
-  componentDidMount() {
-    this.updateLocation();
-  }
-
-
-
-
-  updateLocation = () => {
-    this.setState({
-      latitude: -36.88083800623871,
-      longitude: 174.70746492207425,
-    })
   }
 
   getLocation = async () => {
@@ -58,17 +44,23 @@ export default class App extends Component {
   }
 
 
-  darkMode = () => {
+  changeTheme = () => {
+    // console.log(mapStyle)
     if (mapStyle.length == 0) {
       mapStyle = mapBlack;
-    } else {
-      mapStyle = []
+    } else if (mapStyle == mapBlack){
+      mapStyle = mapRetro;
+    }else if (mapStyle == mapRetro) {
+      mapStyle = mapAubergine;
+    }
+    else if (mapStyle == mapAubergine){
+      mapStyle = [];
     }
     this.forceUpdate();
   }
 
   mapPressed = (e) => {
-    this.setState({ markers: [...this.state.markers, { latlng: e.nativeEvent.coordinate }] })
+    // this.setState({ markers: [...this.state.markers, { latlng: e.nativeEvent.coordinate }] })
 
     this.setState({
       latitude: e.nativeEvent.coordinate.latitude,
@@ -120,12 +112,6 @@ export default class App extends Component {
       console.log(result.name);
     }
 
-
-    const config = {
-      velocityThreshold: 0.3,
-      directionalOffsetThreshold: 80
-    };
-
     return (
       <>
         <MapView
@@ -149,11 +135,11 @@ export default class App extends Component {
             title='Flatiron School Atlanta'
             description='This is where the magic happens!'
           ></Marker>
-          {
+          {/* {
             this.state.markers.map((marker, i) => (
               <MapView.Marker key={i} coordinate={marker.latlng} />
             ))
-          }
+          } */}
 
         </MapView>
         <View style={styles.zoomWrapper}>
@@ -167,7 +153,6 @@ export default class App extends Component {
         <GestureRecognizer
           onSwipeUp={(state) => this.onSwipeUp(state)}
           onSwipeDown={(state) => this.onSwipeDown(state)}
-          config={config}
           style={{
             backgroundColor: "white",
             marginTop: this.state.containerSwipeMargin,
@@ -185,7 +170,7 @@ export default class App extends Component {
               <Button onPress={this.getWeather} title="Get Weather" />
             </View>
             <View style={styles.buttonView}>
-              <Button onPress={this.darkMode} title="Dark Mode" />
+              <Button onPress={this.changeTheme} title="Change Theme" />
             </View>
             {this.state.result ? (
               <View style={styles.weatherContainer}>
@@ -257,237 +242,3 @@ const styles = StyleSheet.create({
 })
 
 let mapStyle = []
-
-let mapBlack = [
-  {
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#8ec3b9"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1a3646"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.country",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#4b6878"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.land_parcel",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#64779e"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.province",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#4b6878"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.man_made",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#334e87"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.natural",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#283d6a"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#6f9ba5"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#3C7680"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#304a7d"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#98a5be"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#2c6675"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#255763"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#b0d5ce"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#98a5be"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.line",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#283d6a"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.station",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#3a4762"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#0e1626"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#4e6d70"
-      }
-    ]
-  }
-]
