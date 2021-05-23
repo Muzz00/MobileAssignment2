@@ -15,7 +15,8 @@ export default class App extends Component {
       longitude: 172.70746492207425,
       result: '',
       delta: 0.1,
-      markers: []
+      containerSwipeMargin: 680,
+      markers: [],
     }
   }
 
@@ -48,14 +49,11 @@ export default class App extends Component {
   }
 
   getWeather = async () => {
-    // try {
-    //   console.log('fetching')
     let result = await fetch(
       'https://api.openweathermap.org/data/2.5/weather?lat=' + this.state.latitude + '&lon=' + this.state.longitude + '&appid=d9b7491733da14e804ae98f8a6cfdf7b&units=metric'
     ).then((response) => response.json()).catch(error => {
       console.log('found error', error)
     })
-    // console.log(result.coord.lon + "this");
     this.setState({ result: result })
   }
 
@@ -94,25 +92,13 @@ export default class App extends Component {
 
   onSwipeUp(gestureState) {
     console.log('You swiped up!');
+    this.setState({ containerSwipeMargin: 680 })
   }
 
   onSwipeDown(gestureState) {
     console.log('You swiped down!');
+    this.setState({ containerSwipeMargin: 860 })
   }
-
-  onSwipe(gestureName, gestureState) {
-    const {SWIPE_UP, SWIPE_DOWN, SWIPE_LEFT, SWIPE_RIGHT} = swipeDirections;
-    this.setState({gestureName: gestureName});
-    switch (gestureName) {
-      case SWIPE_UP:
-        console.log('red');
-        break;
-      case SWIPE_DOWN:
-        console.log('green');
-        break;
-    }
-  }
-
 
   render() {
     // Location
@@ -147,8 +133,6 @@ export default class App extends Component {
           style={{ ...StyleSheet.absoluteFillObject, ...styles.mapView }}
           onPress={(e) => this.mapPressed(e)}
           initialRegion={{
-            // latitude: 33.7872131,
-            // longitude: -84.381931,
             latitude: latitude,
             longitude: longitude,
             latitudeDelta: .005,
@@ -161,7 +145,6 @@ export default class App extends Component {
           }} >
 
           <Marker
-            // coordinate={{ latitude: 33.7872131, longitude: -84.381931 }}
             coordinate={{ latitude: latitude, longitude: longitude }}
             title='Flatiron School Atlanta'
             description='This is where the magic happens!'
@@ -182,19 +165,19 @@ export default class App extends Component {
           </View>
         </View>
         <GestureRecognizer
-          onSwipe={(direction, state) => this.onSwipe(direction, state)}
           onSwipeUp={(state) => this.onSwipeUp(state)}
           onSwipeDown={(state) => this.onSwipeDown(state)}
-          // onSwipeLeft={(state) => this.onSwipeLeft(state)}
-          // onSwipeRight={(state) => this.onSwipeRight(state)}
           config={config}
           style={{
-            // flex: 1,
-            backgroundColor: "black"
-          }, styles.container}
+            backgroundColor: "white",
+            marginTop: this.state.containerSwipeMargin,
+            padding: 10,
+            borderRadius: 25,
+            paddingBottom: 50,
+          }}
         >
           <View>
-            <Text style={styles.txt}>{latitude} -- {longitude}</Text>
+            <Text style={styles.bar}></Text>
             <View style={styles.buttonView}>
               <Button onPress={this.getLocation} title="Get My Location" />
             </View>
@@ -224,17 +207,13 @@ export default class App extends Component {
 
 const styles = StyleSheet.create({
   mapView: { backgroundColor: 'black' },
-  container: {
-    marginTop: 700,
-    backgroundColor: "white",
-    padding: 10,
-    height: 190,
-    borderRadius: 10,
-  },
-  txt: {
+  bar: {
     backgroundColor: "#dedede",
     width: "96%",
-    marginLeft: "2%"
+    marginLeft: "2%",
+    height: 8,
+    borderRadius: 5,
+    marginBottom: 20,
   },
   buttonView: {
     backgroundColor: "black",
@@ -246,7 +225,7 @@ const styles = StyleSheet.create({
   zoomWrapper: {
     position: 'absolute',
     marginLeft: "75%",
-    marginTop: 600,
+    marginTop: 580,
 
   },
   zoom: {
@@ -261,8 +240,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: "50%",
     position: 'absolute',
-    top: 30,
-    left: "48%",
+    top: 32,
+    left: "46%",
     paddingTop: 15,
   },
   white: {
