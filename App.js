@@ -3,8 +3,7 @@ import { StyleSheet, View, Button, Text } from 'react-native';
 // import MapView from 'react-native-maps'
 import MapView, { Marker, Callout } from 'react-native-maps'
 import * as Location from 'expo-location';
-import { Directions } from 'react-native-gesture-handler';
-
+import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
 
 
 
@@ -15,6 +14,7 @@ export default class App extends Component {
       latitude: -32.88083800623871,
       longitude: 172.70746492207425,
       result: '',
+      delta: 0.1,
       markers: []
     }
   }
@@ -78,6 +78,42 @@ export default class App extends Component {
     })
   }
 
+  changeZoom = (value) => {
+    let delta = 0;
+    if (value == "increase") {
+      delta = this.state.delta + 0.05;
+    }
+    else {
+      delta = this.state.delta - 0.05;
+    }
+    this.setState({
+      delta: delta,
+    })
+  }
+
+
+  onSwipeUp(gestureState) {
+    console.log('You swiped up!');
+  }
+
+  onSwipeDown(gestureState) {
+    console.log('You swiped down!');
+  }
+
+  onSwipe(gestureName, gestureState) {
+    const {SWIPE_UP, SWIPE_DOWN, SWIPE_LEFT, SWIPE_RIGHT} = swipeDirections;
+    this.setState({gestureName: gestureName});
+    switch (gestureName) {
+      case SWIPE_UP:
+        console.log('red');
+        break;
+      case SWIPE_DOWN:
+        console.log('green');
+        break;
+    }
+  }
+
+
   render() {
     // Location
     let latitude = 33.7872131;
@@ -99,6 +135,10 @@ export default class App extends Component {
     }
 
 
+    const config = {
+      velocityThreshold: 0.3,
+      directionalOffsetThreshold: 80
+    };
 
     return (
       <>
@@ -116,8 +156,8 @@ export default class App extends Component {
           }} region={{
             latitude: latitude,
             longitude: longitude,
-            latitudeDelta: .1,
-            longitudeDelta: .1
+            latitudeDelta: this.state.delta,
+            longitudeDelta: this.state.delta
           }} >
 
           <Marker
@@ -133,29 +173,50 @@ export default class App extends Component {
           }
 
         </MapView>
-        <View style={styles.container}>
-          <Text style={styles.txt}>{latitude} -- {longitude}</Text>
-          <View style={styles.getLocButton}>
-            <Button onPress={this.getLocation} title="Get My Location" />
+        <View style={styles.zoomWrapper}>
+          <View style={styles.zoom}>
+            <Button onPress={() => this.changeZoom("decrease")} title="+" />
           </View>
-          <View style={styles.getLocButton}>
-            <Button onPress={this.getWeather} title="Get Weather" />
+          <View style={styles.zoom}>
+            <Button onPress={() => this.changeZoom("increase")} title="-" />
           </View>
-          <View style={styles.getLocButton}>
-            <Button onPress={this.darkMode} title="Dark Mode" />
-          </View>
-          {this.state.result ? (
-            <View style={styles.weatherContainer}>
-              <Text style={{ ...styles.white, ...styles.wDescription }}>{result.name}</Text>
-              <Text style={{ ...styles.white, ...styles.wDescription }}>{weather.description}</Text>
-              <Text style={{ ...styles.white, ...styles.wDescription, ...styles.celcius }}>{result.main.temp}°C</Text>
-            </View>
-          ) : (
-            <View style={styles.weatherContainer}>
-
-            </View>
-          )}
         </View>
+        <GestureRecognizer
+          onSwipe={(direction, state) => this.onSwipe(direction, state)}
+          onSwipeUp={(state) => this.onSwipeUp(state)}
+          onSwipeDown={(state) => this.onSwipeDown(state)}
+          // onSwipeLeft={(state) => this.onSwipeLeft(state)}
+          // onSwipeRight={(state) => this.onSwipeRight(state)}
+          config={config}
+          style={{
+            // flex: 1,
+            backgroundColor: "black"
+          }, styles.container}
+        >
+          <View>
+            <Text style={styles.txt}>{latitude} -- {longitude}</Text>
+            <View style={styles.buttonView}>
+              <Button onPress={this.getLocation} title="Get My Location" />
+            </View>
+            <View style={styles.buttonView}>
+              <Button onPress={this.getWeather} title="Get Weather" />
+            </View>
+            <View style={styles.buttonView}>
+              <Button onPress={this.darkMode} title="Dark Mode" />
+            </View>
+            {this.state.result ? (
+              <View style={styles.weatherContainer}>
+                <Text style={{ ...styles.white, ...styles.wDescription }}>{result.name}</Text>
+                <Text style={{ ...styles.white, ...styles.wDescription }}>{weather.description}</Text>
+                <Text style={{ ...styles.white, ...styles.wDescription, ...styles.celcius }}>{result.main.temp}°C</Text>
+              </View>
+            ) : (
+              <View style={styles.weatherContainer}>
+
+              </View>
+            )}
+          </View>
+        </GestureRecognizer>
       </>
     );
   }
@@ -175,12 +236,24 @@ const styles = StyleSheet.create({
     width: "96%",
     marginLeft: "2%"
   },
-  getLocButton: {
+  buttonView: {
     backgroundColor: "black",
     width: "40%",
     marginLeft: "2%",
     marginTop: "2%",
     borderRadius: 5,
+  },
+  zoomWrapper: {
+    position: 'absolute',
+    marginLeft: "75%",
+    marginTop: 600,
+
+  },
+  zoom: {
+    width: "45%",
+    marginLeft: "50%",
+    marginTop: "3%",
+    marginBottom: "3%"
   },
   weatherContainer: {
     backgroundColor: "#333",
@@ -188,8 +261,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: "50%",
     position: 'absolute',
-    top: 40,
-    left: "50%",
+    top: 30,
+    left: "48%",
     paddingTop: 15,
   },
   white: {
