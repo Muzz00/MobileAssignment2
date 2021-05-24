@@ -20,6 +20,9 @@ export default class App extends Component {
         show: false,
       },
       showSettings: false,
+      settings: {
+        theme: 'Default',
+      }
       // markers: [],
     }
   }
@@ -55,17 +58,22 @@ export default class App extends Component {
 
 
   changeTheme = () => {
+    let theme = ''
     if (mapStyle.length == 0) {
       mapStyle = mapBlack;
+      theme = 'Black'
     } else if (mapStyle == mapBlack) {
       mapStyle = mapRetro;
+      theme = 'Retro'
     } else if (mapStyle == mapRetro) {
       mapStyle = mapAubergine;
+      theme = 'Aubergine'
     }
     else if (mapStyle == mapAubergine) {
       mapStyle = [];
+      theme = 'Default'
     }
-    this.forceUpdate();
+    this.setState({settings: {...this.state.settings, theme: theme}})
   }
 
   mapPressed = (e) => {
@@ -168,7 +176,7 @@ export default class App extends Component {
               <Button onPress={this.getWeather} title="Get Weather" />
             </View>
             <View style={styles.buttonView}>
-              <Button onPress={this.changeTheme} title="Change Theme" />
+              <Button title="Just Random" />
             </View>
             {this.state.result ? (
               <View style={styles.weatherContainer}>
@@ -195,6 +203,11 @@ export default class App extends Component {
           <View style={{ backgroundColor: 'white', position: 'absolute', width: '100%', height: "100%", zIndex: 1 }}>
             <View style={{ position: 'absolute', top: '95%', left: 10, width: 100, backgroundColor: 'green', }}>
               <Button onPress={() => this.toggleSettings()} title="Back">Back</Button>
+            </View>
+            <View style={styles.changeTheme}>
+              <View style={{backgroundColor: "#888", borderRadius: 10, width: 150, height: 38, marginLeft: '5%'}}><Text>{this.state.settings.theme}</Text></View>
+              <View style={{marginLeft: '20%', width: 150, height: 40}} ><Button onPress={this.changeTheme} title="Change Theme"/></View>
+              
             </View>
           </View>
         ) : (
@@ -223,6 +236,13 @@ const styles = StyleSheet.create({
     marginLeft: "2%",
     marginTop: "2%",
     borderRadius: 5,
+  },
+  changeTheme: {
+    width: "40%",
+    marginLeft: "6%",
+    marginTop: "12%",
+    borderRadius: 5,
+    flexDirection: 'row',
   },
   zoomWrapper: {
     position: 'absolute',
