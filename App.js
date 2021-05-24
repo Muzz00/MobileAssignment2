@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Button, Text } from 'react-native';
+import { StyleSheet, View, Button, Text, Image, TouchableHighlight } from 'react-native';
 // import MapView from 'react-native-maps'
 import MapView, { Marker, Callout } from 'react-native-maps'
 import * as Location from 'expo-location';
 import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
-import {mapRetro, mapAubergine, mapBlack} from './mapStyles'
+import { mapRetro, mapAubergine, mapBlack } from './mapStyles'
 
 
 export default class App extends Component {
@@ -16,6 +16,7 @@ export default class App extends Component {
       result: '',
       delta: 0.1,
       containerSwipeMargin: 680,
+      showSettings: false,
       // markers: [],
     }
   }
@@ -29,8 +30,6 @@ export default class App extends Component {
     }
 
     let location = await Location.getCurrentPositionAsync({});
-    console.log(location)
-    console.log(location.coords.longitude)
     this.setState({ latitude: location.coords.latitude, longitude: location.coords.longitude })
   }
 
@@ -45,27 +44,24 @@ export default class App extends Component {
 
 
   changeTheme = () => {
-    // console.log(mapStyle)
     if (mapStyle.length == 0) {
       mapStyle = mapBlack;
-    } else if (mapStyle == mapBlack){
+    } else if (mapStyle == mapBlack) {
       mapStyle = mapRetro;
-    }else if (mapStyle == mapRetro) {
+    } else if (mapStyle == mapRetro) {
       mapStyle = mapAubergine;
     }
-    else if (mapStyle == mapAubergine){
+    else if (mapStyle == mapAubergine) {
       mapStyle = [];
     }
     this.forceUpdate();
   }
 
   mapPressed = (e) => {
-    // this.setState({ markers: [...this.state.markers, { latlng: e.nativeEvent.coordinate }] })
-
     this.setState({
       latitude: e.nativeEvent.coordinate.latitude,
       longitude: e.nativeEvent.coordinate.longitude,
-    })
+    });
   }
 
   changeZoom = (value) => {
@@ -81,15 +77,9 @@ export default class App extends Component {
     })
   }
 
-
-  onSwipeUp(gestureState) {
-    console.log('You swiped up!');
-    this.setState({ containerSwipeMargin: 680 })
-  }
-
-  onSwipeDown(gestureState) {
-    console.log('You swiped down!');
-    this.setState({ containerSwipeMargin: 860 })
+  toggleSettings = () => {
+    console.log(this.state.showSettings);
+    this.setState({ showSettings: !(this.state.showSettings) });
   }
 
   render() {
@@ -107,9 +97,7 @@ export default class App extends Component {
     let weather = {};
     let result = this.state.result;
     if (result != "") { // Check if there state is updated
-      console.log(result.coord.lon);
       weather = result.weather[0];
-      console.log(result.name);
     }
 
     return (
@@ -151,8 +139,8 @@ export default class App extends Component {
           </View>
         </View>
         <GestureRecognizer
-          onSwipeUp={(state) => this.onSwipeUp(state)}
-          onSwipeDown={(state) => this.onSwipeDown(state)}
+          onSwipeUp={() => this.setState({ containerSwipeMargin: 680 })}
+          onSwipeDown={() => this.setState({ containerSwipeMargin: 860 })}
           style={{
             backgroundColor: "white",
             marginTop: this.state.containerSwipeMargin,
@@ -185,6 +173,22 @@ export default class App extends Component {
             )}
           </View>
         </GestureRecognizer>
+
+        {/* Settings */}
+        <TouchableHighlight onPress={() => this.toggleSettings()} style={{ position: 'absolute', marginLeft: 10, alignItems: 'center', marginTop: 20, height: 50, width: 50, }}>
+          <Image style={{ width: 30, height: 30, marginTop: 10 }} source={require('./settings.png')} />
+        </TouchableHighlight>
+        {this.state.showSettings ? (
+          <View style={{ backgroundColor: 'white', position: 'absolute', width: '100%', height: "100%", zIndex: 1 }}>
+            <View style={{position: 'absolute', top: '95%', left: 10, width: 100, backgroundColor: 'green',}}>
+              <Button onPress={() => this.toggleSettings()} title="Back">Back</Button>
+            </View>
+          </View>
+        ) : (
+          <View>
+
+          </View>
+        )}
       </>
     );
   }
@@ -211,7 +215,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     marginLeft: "75%",
     marginTop: 580,
-
+    zIndex: 0,
   },
   zoom: {
     width: "45%",
