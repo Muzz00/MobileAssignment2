@@ -16,6 +16,9 @@ export default class App extends Component {
       result: '',
       delta: 0.1,
       containerSwipeMargin: 680,
+      currentLocation: {
+        show: false,
+      },
       showSettings: false,
       // markers: [],
     }
@@ -30,7 +33,15 @@ export default class App extends Component {
     }
 
     let location = await Location.getCurrentPositionAsync({});
-    this.setState({ latitude: location.coords.latitude, longitude: location.coords.longitude })
+    this.setState({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      currentLocation: {
+        show: true,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      }
+    })
   }
 
   getWeather = async () => {
@@ -78,7 +89,6 @@ export default class App extends Component {
   }
 
   toggleSettings = () => {
-    console.log(this.state.showSettings);
     this.setState({ showSettings: !(this.state.showSettings) });
   }
 
@@ -173,6 +183,9 @@ export default class App extends Component {
             )}
           </View>
         </GestureRecognizer>
+        {this.state.currentLocation.show ? (
+          <Text style={{ position: 'absolute', marginTop: 30, marginLeft: 60 }}>Current location: {this.state.currentLocation.latitude}, {this.state.currentLocation.longitude}</Text>
+        ) : (<Text></Text>)}
 
         {/* Settings */}
         <TouchableHighlight onPress={() => this.toggleSettings()} style={{ position: 'absolute', marginLeft: 10, alignItems: 'center', marginTop: 20, height: 50, width: 50, }}>
@@ -180,7 +193,7 @@ export default class App extends Component {
         </TouchableHighlight>
         {this.state.showSettings ? (
           <View style={{ backgroundColor: 'white', position: 'absolute', width: '100%', height: "100%", zIndex: 1 }}>
-            <View style={{position: 'absolute', top: '95%', left: 10, width: 100, backgroundColor: 'green',}}>
+            <View style={{ position: 'absolute', top: '95%', left: 10, width: 100, backgroundColor: 'green', }}>
               <Button onPress={() => this.toggleSettings()} title="Back">Back</Button>
             </View>
           </View>
