@@ -26,6 +26,8 @@ export default class App extends Component {
         updatingMarkerTitle: ''
       },
       markers: [],
+      msgShow: false,
+      msg: 'Updated Home',
     }
   }
 
@@ -84,22 +86,25 @@ export default class App extends Component {
   mapPressed = (e) => {
     let lat = e.nativeEvent.coordinate.latitude;
     let long = e.nativeEvent.coordinate.longitude;
+    let updatingMarkerTitle = this.state.settings.updatingMarkerTitle;
     if (this.state.settings.updating) {
       // Check if the tag (e.g. Home) already exists in marker and remove it if it does exist
       let tempMarkers = [...this.state.markers]
+      let markers = [] 
       for (var i = 0; i < tempMarkers.length; i++) {
-        if (tempMarkers[i].title == this.state.settings.updatingMarkerTitle) {
-          tempMarkers.splice(i)
+        if (tempMarkers[i].title != updatingMarkerTitle) {
+          markers.push(tempMarkers[i])
         }
       }
 
       // Create obj and add it to the settings
-      let markers = [...tempMarkers,
+      markers.push(
       {
-        latitude: lat, longitude: long, title: this.state.settings.updatingMarkerTitle,
-        des: 'This is your ' + this.state.settings.updatingMarkerTitle
-      }]
-      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers })
+        latitude: lat, longitude: long, title: updatingMarkerTitle,
+        des: 'This is your ' + updatingMarkerTitle
+      })
+      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers });
+      this.setMsg('Sucessfully updated ' + updatingMarkerTitle);
     }
     else {
       // By default it should just update the marker on the map on press
@@ -126,7 +131,16 @@ export default class App extends Component {
   }
 
   changeMarker = (value) => {
-    this.setState({ showSettings: false, settings: { ...this.state.settings, updating: true, updatingMarkerTitle: value } })
+    this.setMsg('Drop the pin by touching the map to update ' + value)
+    this.setState({ showSettings: false, settings: { ...this.state.settings, updating: true, updatingMarkerTitle: value } });
+  }
+
+  setMsg = (msg) => {
+    this.setState({ msgShow: true, msg: msg })
+    let timeout = setTimeout(() => {
+      // Add your logic for the transition
+      this.setState({ msgShow: false })
+    }, 5000);
   }
 
   render() {
@@ -177,10 +191,13 @@ export default class App extends Component {
           }
 
         </MapView>
+        {this.state.msgShow ? (<View style={styles.msg}>
+          <Text>{this.state.msg}</Text>
+        </View>) : (<View></View>)}
         <View style={styles.mapTool}>
-        <TouchableHighlight onPress={() => this.getLocation()} style={styles.mapToolSub}>
-          <Image style={{ marginLeft: 2, marginBottom: 3, width: 40, height: 38, marginTop: 10 }} source={require('./location.png')} />
-        </TouchableHighlight>
+          <TouchableHighlight onPress={() => this.getLocation()} style={styles.mapToolSub}>
+            <Image style={{ marginLeft: 2, marginBottom: 3, width: 40, height: 38, marginTop: 10 }} source={require('./location.png')} />
+          </TouchableHighlight>
           <View style={styles.mapToolSub}>
             <Button onPress={() => this.changeZoom("decrease")} title="+" />
           </View>
@@ -202,13 +219,13 @@ export default class App extends Component {
           <View>
             <Text style={styles.bar}></Text>
             <View style={styles.buttonView}>
-              <Button title="Button 1" />
+              <Button title="Add to Fav" />
+            </View>
+            <View style={styles.buttonView}>
+              <Button onPress={this.getWeather} title="View Favourites" />
             </View>
             <View style={styles.buttonView}>
               <Button onPress={this.getWeather} title="Get Weather" />
-            </View>
-            <View style={styles.buttonView}>
-              <Button title="Button 3" />
             </View>
             {this.state.result ? (
               <View style={styles.weatherContainer}>
@@ -325,6 +342,14 @@ const styles = StyleSheet.create({
   },
   celcius: {
     fontSize: 40,
+  },
+  msg: {
+    position: 'absolute',
+    marginTop: 70,
+    width: '100%',
+    height: 50,
+    backgroundColor: "rgba(217, 208, 184, 0.8)",
+    alignItems: 'center',
   }
 })
 
