@@ -103,7 +103,7 @@ export default class App extends Component {
         latitude: lat, longitude: long, title: updatingMarkerTitle,
         des: 'This is your ' + updatingMarkerTitle
       })
-      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers });
+      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers, latitude: lat, longitude: long });
       this.setMsg('Sucessfully updated ' + updatingMarkerTitle);
     }
     else {
