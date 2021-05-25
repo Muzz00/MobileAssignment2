@@ -19,11 +19,13 @@ export default class App extends Component {
       currentLocation: {
         show: false,
       },
-      showSettings: true,
+      showSettings: false,
       settings: {
         theme: 'Default',
-      }
-      // markers: [],
+        updating: false,
+        updatingMarkerTitle: ''
+      },
+      markers: [],
     }
   }
 
@@ -80,10 +82,30 @@ export default class App extends Component {
   }
 
   mapPressed = (e) => {
-    this.setState({
-      latitude: e.nativeEvent.coordinate.latitude,
-      longitude: e.nativeEvent.coordinate.longitude,
-    });
+    let lat = e.nativeEvent.coordinate.latitude;
+    let long = e.nativeEvent.coordinate.longitude;
+    if (this.state.settings.updating) {
+      // Check if the tag (e.g. Home) already exists in marker and remove it if it does exist
+      let tempMarkers = [...this.state.markers]
+      for (var i = 0; i < tempMarkers.length; i++) {
+        if (tempMarkers[i].title == this.state.settings.updatingMarkerTitle) {
+          tempMarkers.splice(i)
+        }
+      }
+
+      // Create obj and add it to the settings
+      let markers = [...tempMarkers,
+      {
+        latitude: lat, longitude: long, title: this.state.settings.updatingMarkerTitle,
+        des: 'This is your ' + this.state.settings.updatingMarkerTitle
+      }]
+      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers, showSettings: true })
+    }
+    else {
+      // By default it should just update the marker on the map on press
+      this.setState({ latitude: lat, longitude: long, });
+    }
+
   }
 
   changeZoom = (value) => {
@@ -101,6 +123,10 @@ export default class App extends Component {
 
   toggleSettings = () => {
     this.setState({ showSettings: !(this.state.showSettings) });
+  }
+
+  changeMarker = (value) => {
+    this.setState({ showSettings: false, settings: { ...this.state.settings, updating: true, updatingMarkerTitle: value } })
   }
 
   render() {
@@ -144,11 +170,11 @@ export default class App extends Component {
             title='Flatiron School Atlanta'
             description='This is where the magic happens!'
           ></Marker>
-          {/* {
+          {
             this.state.markers.map((marker, i) => (
-              <MapView.Marker key={i} coordinate={marker.latlng} />
+              <MapView.Marker title={marker.title} description={marker.des} key={i} coordinate={{ latitude: marker.latitude, longitude: marker.longitude }} />
             ))
-          } */}
+          }
 
         </MapView>
         <View style={styles.zoomWrapper}>
@@ -212,8 +238,8 @@ export default class App extends Component {
               <View style={styles.settingsElemButton} ><Button onPress={this.changeTheme} title="Change Theme" /></View>
             </View>
             <View style={styles.settingsElemWrapper}>
-              <View style={styles.settingsElemLabel}><Text>{this.state.settings.theme}</Text></View>
-              <View style={styles.settingsElemButton} ><Button onPress={this.changeTheme} title="Change Home" /></View>
+              <View style={{ marginLeft: "5%", width: 150, height: 40 }} ><Button onPress={() => this.changeMarker("Home")} title="Change Home" /></View>
+              <View style={styles.settingsElemButton} ><Button onPress={() => this.changeMarker("Work")} title="Change Work" /></View>
             </View>
           </View>
         ) : (
