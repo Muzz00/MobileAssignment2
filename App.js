@@ -28,23 +28,26 @@ export default class App extends Component {
   }
 
   getLocation = async () => {
-
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      setErrorMsg('Permission to access location was denied');
-      return;
-    }
-
-    let location = await Location.getCurrentPositionAsync({});
-    this.setState({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      currentLocation: {
-        show: true,
+    try{ // Added
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+  
+      let location = await Location.getCurrentPositionAsync({});
+      this.setState({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-      }
-    })
+        currentLocation: {
+          show: true,
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        }
+      })
+      return; // Added 
+    }catch{this.getLocation();} // Added
+    
   }
 
   getWeather = async () => {
@@ -204,7 +207,7 @@ export default class App extends Component {
             <View style={{ position: 'absolute', top: '95%', left: 10, width: 100, backgroundColor: 'green', }}>
               <Button onPress={() => this.toggleSettings()} title="Back">Back</Button>
             </View>
-            <View style={styles.changeTheme}>
+            <View style={styles.settingsElemWrapper}>
               <View style={{backgroundColor: "#888", borderRadius: 10, width: 150, height: 38, marginLeft: '5%'}}><Text>{this.state.settings.theme}</Text></View>
               <View style={{marginLeft: '20%', width: 150, height: 40}} ><Button onPress={this.changeTheme} title="Change Theme"/></View>
               
@@ -237,7 +240,7 @@ const styles = StyleSheet.create({
     marginTop: "2%",
     borderRadius: 5,
   },
-  changeTheme: {
+  settingsElemWrapper: {
     width: "40%",
     marginLeft: "6%",
     marginTop: "12%",
