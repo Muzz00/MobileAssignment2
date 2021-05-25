@@ -19,7 +19,7 @@ export default class App extends Component {
       currentLocation: {
         show: false,
       },
-      showSettings: false,
+      showSettings: true,
       settings: {
         theme: 'Default',
       }
@@ -28,13 +28,13 @@ export default class App extends Component {
   }
 
   getLocation = async () => {
-    try{ // Added
+    try { // Added
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
         return;
       }
-  
+
       let location = await Location.getCurrentPositionAsync({});
       this.setState({
         latitude: location.coords.latitude,
@@ -46,8 +46,8 @@ export default class App extends Component {
         }
       })
       return; // Added 
-    }catch{this.getLocation();} // Added
-    
+    } catch { this.getLocation(); } // Added
+
   }
 
   getWeather = async () => {
@@ -76,7 +76,7 @@ export default class App extends Component {
       mapStyle = [];
       theme = 'Default'
     }
-    this.setState({settings: {...this.state.settings, theme: theme}})
+    this.setState({ settings: { ...this.state.settings, theme: theme } })
   }
 
   mapPressed = (e) => {
@@ -203,14 +203,17 @@ export default class App extends Component {
           <Image style={{ width: 30, height: 30, marginTop: 10 }} source={require('./settings.png')} />
         </TouchableHighlight>
         {this.state.showSettings ? (
-          <View style={{ backgroundColor: 'white', position: 'absolute', width: '100%', height: "100%", zIndex: 1 }}>
-            <View style={{ position: 'absolute', top: '95%', left: 10, width: 100, backgroundColor: 'green', }}>
+          <View style={{ backgroundColor: 'white', position: 'absolute', width: '100%', height: "100%", zIndex: 1, paddingTop: "9%" }}>
+            <View style={{ position: 'absolute', top: '98%', left: 10, width: 100, backgroundColor: 'green', }}>
               <Button onPress={() => this.toggleSettings()} title="Back">Back</Button>
             </View>
             <View style={styles.settingsElemWrapper}>
-              <View style={{backgroundColor: "#888", borderRadius: 10, width: 150, height: 38, marginLeft: '5%'}}><Text>{this.state.settings.theme}</Text></View>
-              <View style={{marginLeft: '20%', width: 150, height: 40}} ><Button onPress={this.changeTheme} title="Change Theme"/></View>
-              
+              <View style={styles.settingsElemLabel}><Text>{this.state.settings.theme}</Text></View>
+              <View style={styles.settingsElemButton} ><Button onPress={this.changeTheme} title="Change Theme" /></View>
+            </View>
+            <View style={styles.settingsElemWrapper}>
+              <View style={styles.settingsElemLabel}><Text>{this.state.settings.theme}</Text></View>
+              <View style={styles.settingsElemButton} ><Button onPress={this.changeTheme} title="Change Home" /></View>
             </View>
           </View>
         ) : (
@@ -243,9 +246,23 @@ const styles = StyleSheet.create({
   settingsElemWrapper: {
     width: "40%",
     marginLeft: "6%",
-    marginTop: "12%",
+    marginTop: "7%",
     borderRadius: 5,
     flexDirection: 'row',
+  },
+  settingsElemLabel: {
+    backgroundColor: "#888",
+    borderRadius: 10,
+    width: 150,
+    height: 38,
+    marginLeft: '5%',
+    alignItems: 'center',
+    paddingTop: 8
+  },
+  settingsElemButton: {
+    marginLeft: '20%',
+    width: 150,
+    height: 40
   },
   zoomWrapper: {
     position: 'absolute',
