@@ -99,7 +99,7 @@ export default class App extends Component {
         latitude: lat, longitude: long, title: this.state.settings.updatingMarkerTitle,
         des: 'This is your ' + this.state.settings.updatingMarkerTitle
       }]
-      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers, showSettings: true })
+      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers })
     }
     else {
       // By default it should just update the marker on the map on press
@@ -177,11 +177,14 @@ export default class App extends Component {
           }
 
         </MapView>
-        <View style={styles.zoomWrapper}>
-          <View style={styles.zoom}>
+        <View style={styles.mapTool}>
+        <TouchableHighlight onPress={() => this.getLocation()} style={styles.mapToolSub}>
+          <Image style={{ marginLeft: 2, marginBottom: 3, width: 40, height: 38, marginTop: 10 }} source={require('./location.png')} />
+        </TouchableHighlight>
+          <View style={styles.mapToolSub}>
             <Button onPress={() => this.changeZoom("decrease")} title="+" />
           </View>
-          <View style={styles.zoom}>
+          <View style={styles.mapToolSub}>
             <Button onPress={() => this.changeZoom("increase")} title="-" />
           </View>
         </View>
@@ -199,13 +202,13 @@ export default class App extends Component {
           <View>
             <Text style={styles.bar}></Text>
             <View style={styles.buttonView}>
-              <Button onPress={this.getLocation} title="Get My Location" />
+              <Button title="Button 1" />
             </View>
             <View style={styles.buttonView}>
               <Button onPress={this.getWeather} title="Get Weather" />
             </View>
             <View style={styles.buttonView}>
-              <Button title="Just Random" />
+              <Button title="Button 3" />
             </View>
             {this.state.result ? (
               <View style={styles.weatherContainer}>
@@ -253,7 +256,6 @@ export default class App extends Component {
 }
 
 const styles = StyleSheet.create({
-  mapView: { backgroundColor: 'black' },
   bar: {
     backgroundColor: "#dedede",
     width: "96%",
@@ -290,17 +292,19 @@ const styles = StyleSheet.create({
     width: 150,
     height: 40
   },
-  zoomWrapper: {
+  mapTool: {
     position: 'absolute',
     marginLeft: "75%",
-    marginTop: 580,
+    marginTop: 480,
     zIndex: 0,
   },
-  zoom: {
+  mapToolSub: {
     width: "45%",
     marginLeft: "50%",
     marginTop: "3%",
-    marginBottom: "3%"
+    marginBottom: "3%",
+    backgroundColor: 'rgba(217, 208, 184, 0.5)',
+    borderRadius: 5
   },
   weatherContainer: {
     backgroundColor: "#333",
