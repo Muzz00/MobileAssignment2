@@ -28,6 +28,7 @@ export default class App extends Component {
       markers: [],
       msgShow: false,
       msg: 'Updated Home',
+      showAddToFav: false,
     }
   }
 
@@ -86,9 +87,9 @@ export default class App extends Component {
   mapPressed = (e) => {
     let lat = e.nativeEvent.coordinate.latitude;
     let long = e.nativeEvent.coordinate.longitude;
-    let updatingMarkerTitle = this.state.settings.updatingMarkerTitle;
     if (this.state.settings.updating) {
       // Check if the tag (e.g. Home) already exists in marker and remove it if it does exist
+      let updatingMarkerTitle = this.state.settings.updatingMarkerTitle;
       let tempMarkers = [...this.state.markers]
       let markers = [] 
       for (var i = 0; i < tempMarkers.length; i++) {
@@ -99,11 +100,11 @@ export default class App extends Component {
 
       // Create obj and add it to the settings
       markers.push(
-      {
-        latitude: lat, longitude: long, title: updatingMarkerTitle,
-        des: 'This is your ' + updatingMarkerTitle
-      })
-      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers, latitude: lat, longitude: long });
+        {
+          latitude: lat, longitude: long, title: updatingMarkerTitle,
+          des: 'This is your ' + updatingMarkerTitle
+        })
+      this.setState({ settings: { ...this.state.settings, updating: false }, markers: markers });
       this.setMsg('Sucessfully updated ' + updatingMarkerTitle);
     }
     else {
@@ -181,8 +182,8 @@ export default class App extends Component {
 
           <Marker
             coordinate={{ latitude: latitude, longitude: longitude }}
-            title='Flatiron School Atlanta'
-            description='This is where the magic happens!'
+            title='Dropped Pin'
+            description='You dropped the pin here'
           ></Marker>
           {
             this.state.markers.map((marker, i) => (
@@ -219,7 +220,7 @@ export default class App extends Component {
           <View>
             <Text style={styles.bar}></Text>
             <View style={styles.buttonView}>
-              <Button title="Add to Fav" />
+              <Button onPress={()=> this.setState({showAddToFav: !this.state.showAddToFav})} title="Add to Fav" />
             </View>
             <View style={styles.buttonView}>
               <Button onPress={this.getWeather} title="View Favourites" />
@@ -267,6 +268,16 @@ export default class App extends Component {
 
           </View>
         )}
+        {/* End of Settings */}
+
+        {/* Favourites */}
+        {this.state.showAddToFav ? (
+          <View style={{position: 'absolute', marginTop: 150, width: 500, height: 500, backgroundColor: '#dedede'}}>
+            <View style={{marginTop: 50, }}>
+            </View>
+          </View>
+        ):(<View></View>)}
+        
       </>
     );
   }
