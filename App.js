@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Button, Text, Image, TouchableHighlight } from 'react-native';
+import { StyleSheet, View, Button, Text, Image, TouchableHighlight, TextInput } from 'react-native';
 // import MapView from 'react-native-maps'
 import MapView, { Marker, Callout } from 'react-native-maps'
 import * as Location from 'expo-location';
@@ -29,6 +29,10 @@ export default class App extends Component {
       msgShow: false,
       msg: 'Updated Home',
       showAddToFav: false,
+      showSearchFav: false,
+      tagInput: '',
+      searchFound: false,
+      searchMarker: {}
     }
   }
 
@@ -91,7 +95,7 @@ export default class App extends Component {
       // Check if the tag (e.g. Home) already exists in marker and remove it if it does exist
       let updatingMarkerTitle = this.state.settings.updatingMarkerTitle;
       let tempMarkers = [...this.state.markers]
-      let markers = [] 
+      let markers = []
       for (var i = 0; i < tempMarkers.length; i++) {
         if (tempMarkers[i].title != updatingMarkerTitle) {
           markers.push(tempMarkers[i])
@@ -144,6 +148,34 @@ export default class App extends Component {
     }, 5000);
   }
 
+  saveMarker = () => {
+    let markers = this.state.markers;
+
+    markers.push({
+      latitude: this.state.latitude, longitude: this.state.longitude, title: this.state.tagInput,
+      des: "Saved to favourites"
+    })
+    this.setState({ showAddToFav: false })
+    this.setMsg("Sucessfully saved " + this.state.tagInput)
+  }
+
+  searchMarker = () => {
+    let markers = this.state.markers
+    let marker = ''
+    for (var i = 0; i < markers.length; i++) {
+      if (markers[i].title == this.state.tagInput) {
+        marker = markers[i];
+        break;
+      }
+    }
+    if (marker != ''){
+      this.setState({searchFound: true, searchMarker: marker});
+    }
+    else{
+      this.setMsg("Marker not found")
+    }
+  }
+
   render() {
     // Location
     let latitude = 33.7872131;
@@ -187,7 +219,7 @@ export default class App extends Component {
           ></Marker>
           {
             this.state.markers.map((marker, i) => (
-              <MapView.Marker title={marker.title} description={marker.des} key={i} coordinate={{ latitude: marker.latitude, longitude: marker.longitude }} />
+              <MapView.Marker title={marker.title} onPress={()=>this.setState({latitude: marker.latitude, longitude: marker.longitude})} description={marker.des} key={i} coordinate={{ latitude: marker.latitude, longitude: marker.longitude }} />
             ))
           }
 
@@ -220,10 +252,10 @@ export default class App extends Component {
           <View>
             <Text style={styles.bar}></Text>
             <View style={styles.buttonView}>
-              <Button onPress={()=> this.setState({showAddToFav: !this.state.showAddToFav})} title="Add to Fav" />
+              <Button onPress={() => this.setState({ showAddToFav: !this.state.showAddToFav, showSearchFav: false })} title="Add to Fav" />
             </View>
             <View style={styles.buttonView}>
-              <Button onPress={this.getWeather} title="View Favourites" />
+              <Button onPress={() => this.setState({ showSearchFav: !this.state.showSearchFav, showAddToFav: false })} title="Search Fav" />
             </View>
             <View style={styles.buttonView}>
               <Button onPress={this.getWeather} title="Get Weather" />
@@ -272,12 +304,38 @@ export default class App extends Component {
 
         {/* Favourites */}
         {this.state.showAddToFav ? (
-          <View style={{position: 'absolute', marginTop: 150, width: 500, height: 500, backgroundColor: '#dedede'}}>
-            <View style={{marginTop: 50, }}>
+          <View style={{ position: 'absolute', marginTop: 220, width: "95%", marginLeft: "2.5%", height: 180, backgroundColor: '#dedede', borderRadius: 25 }}>
+            <View style={styles.settingsElemWrapper}>
+              <View style={styles.settingsElemLabel}><Text>Enter Tag Name</Text></View>
+              <View style={{ backgroundColor: 'lightgrey', borderRadius: 10, width: 180, marginLeft: 20, marginRight: 60 }}><TextInput onChangeText={text => this.setState({ tagInput: text })} style={styles.settingsElemButton} placeholder="Type your tag" /></View>
             </View>
+            <View style={{ width: "100%", alignItems: 'center', marginTop: 20 }} ><Text>{this.state.latitude}, {this.state.longitude}</Text></View>
+            <TouchableHighlight onPress={() => this.saveMarker()} style={{ marginTop: 20, marginLeft: 250, borderRadius: 10, maxWidth: 120, backgroundColor: "#333", alignItems: "center" }}>
+              <Text style={{ color: "white", margin: 8 }}>Save Marker</Text>
+            </TouchableHighlight>
           </View>
-        ):(<View></View>)}
-        
+        ) : (<View></View>)}
+
+
+        {this.state.showSearchFav ? (
+          <View style={{ position: 'absolute', marginTop: 220, width: "95%", marginLeft: "2.5%", height: 260, backgroundColor: '#dedede', borderRadius: 25 }}>
+            <View style={styles.settingsElemWrapper}>
+              <View style={styles.settingsElemLabel}><Text>Enter Tag Name</Text></View>
+              <View style={{ backgroundColor: 'lightgrey', borderRadius: 10, width: 180, marginLeft: 20, marginRight: 60 }}><TextInput onChangeText={text => this.setState({ tagInput: text })} style={styles.settingsElemButton} placeholder="Type your tag" /></View>
+            </View>
+            <TouchableHighlight onPress={() => this.searchMarker()} style={{ marginTop: 20, marginLeft: "8%", borderRadius: 10, maxWidth: 120, backgroundColor: "#333", alignItems: "center" }}>
+              <Text style={{ color: "white", margin: 8 }}>Search</Text>
+            </TouchableHighlight>
+
+            {this.state.searchFound ? (
+            <View>
+            <View style={{ width: "100%", alignItems: 'center', marginTop: 20 }} ><Text>{this.state.searchMarker.latitude}, {this.state.searchMarker.longitude}</Text></View>
+            <TouchableHighlight onPress={() => this.setState({latitude: this.state.searchMarker.latitude, longitude: this.state.searchMarker.longitude, showSearchFav: false})} style={{ marginTop: 20, marginLeft: 200, borderRadius: 10, maxWidth: 180, backgroundColor: "#333", alignItems: "center" }}>
+              <Text style={{ color: "white", margin: 8 }}>Go to Marker</Text>
+            </TouchableHighlight></View>): (<View></View>)}
+
+          </View>
+        ) : (<View></View>)}
       </>
     );
   }
