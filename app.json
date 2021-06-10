@@ -11,7 +11,10 @@
     ],
     "android": {
       "package": "com.Muzz.Maps",
-      "versionCode": 1
+      "versionCode": 1,
+      "config": {
+        "googleMaps": {"apiKey": "AIzaSyBDfgf4ATtdvRr325KDM3xcG62ORMLw4as"}
+      }
     }
   }
 }
